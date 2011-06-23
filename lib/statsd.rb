@@ -41,6 +41,9 @@ class Statsd
 
   def send(stat, delta, type, sample_rate)
     sampled(sample_rate) { socket.send("#{stat}:#{delta}|#{type}#{'|@' << sample_rate.to_s if sample_rate < 1}", 0, @host, @port) }
+  rescue SocketError => e
+    # Don't raise errors on the socket.  We use UDP since we don't care whether or not the message went through.
+    puts "Unable to initialize socket to send data."
   end
 
   def socket; @socket ||= UDPSocket.new end
